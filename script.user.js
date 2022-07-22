@@ -146,7 +146,8 @@ function create_dashboard() {
     settings.appendChild(document.createElement('br'));
     s = document.createElement('input');
     s.type = 'number';
-    s.value = 'min_len';
+    s.id = 'min_len';
+    s.value = 0;
     s.addEventListener('input', settings_handler);
     settings.appendChild(s);
 
@@ -187,7 +188,6 @@ function handle_chat() {
 
         var message_box = message.parentElement.parentElement;
         var images = message.getElementsByClassName('chat_image');
-        var remove = false;
 
         // Sex handling
         const sexes = ['boy', 'girl', 'nosex'];
@@ -201,27 +201,34 @@ function handle_chat() {
 
 
         // Message handling
-        if (images.length != 0) {
+        if (images.length != 0) { // Message is an image
             saved_images.add(images[0].src); // Can't see duplicated images without looking at pixels
             if (!settings.includes('img')) {
                 message_box.remove();
                 continue;
             }
-        } else {
-            if (saved_messages.has(message.innerText) && !settings.includes('dupes') && settings.includes('msg')) {
-                message_box.remove();
-                if (settings.includes('verbose')) {
-                    console.log("Removed duplicate!");
-                }
-                continue;
-            } else {
-                saved_messages.add(message.innerText);
-            }
+        } else { // Message is an text message
             if (!settings.includes('msg')) {
                 message_box.remove();
                 continue;
+            } else {
+                if (saved_messages.has(message.innerText) && !settings.includes('dupes')) {
+                    message_box.remove();
+                    if (settings.includes('verbose')) {
+                        console.log("Removed duplicate!");
+                    }
+                    continue;
+                }
+                if (message.innerText.length < document.getElementById('min_len').value && settings.includes('do_min_len')) {
+                    message_box.remove();
+                    if (settings.includes('verbose')) {
+                        console.log("Removed duplicate!");
+                    }
+                    continue;
+                }
             }
         }
+        saved_messages.add(message.innerText); // Passed all checks (no continue)
 
     }
 
