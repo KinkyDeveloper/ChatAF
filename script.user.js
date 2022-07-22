@@ -42,8 +42,6 @@ const SETTINGS_INNERHTML = `
 <button onclick="toggle()" id="toggle">Off</button>
 `
 
-function asd() {}
-
 (function() {
     'use strict';
     // Add jQuery to page
