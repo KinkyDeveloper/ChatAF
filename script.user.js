@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatAF
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Filters for chat and logging.
 // @author       KinkyDeveloper
 // @match        *.chat-avenue.com/*
