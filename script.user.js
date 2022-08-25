@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatAF
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Filters for chat and logging.
 // @author       KinkyDeveloper
 // @match        *.chat-avenue.com/*
@@ -14,6 +14,8 @@ var saved_images = new Set();
 var saved_messages = new Set();
 var settings;
 var enabled = false; // Default filter is off
+var spammers = [];
+var spammer_count = 0;
 var chat_handler;
 
 // SETTINGS
@@ -151,9 +153,12 @@ function create_dashboard() {
     s.addEventListener('input', settings_handler);
     settings.appendChild(s);
 
-
+    // Add settings to dashboard
     dashboard.appendChild(settings);
     dashboard.appendChild(document.createElement('br'));
+    // SETTINGS DONE //
+
+    // EXPORTS
     dashboard.appendChild(document.createTextNode(' -= EXPORT LOGS =-'));
     dashboard.appendChild(document.createElement('br'));
 
@@ -169,7 +174,44 @@ function create_dashboard() {
     dashboard.appendChild(s);
     dashboard.appendChild(document.createElement('br'));
 
-    // Add settings to page
+    // AUTO MESSAGER
+    dashboard.appendChild(document.createElement('br'));
+    dashboard.appendChild(document.createTextNode(' -= AUTO MESSAGE =-'));
+    dashboard.appendChild(document.createElement('br'));
+
+    // MESSAGE
+    dashboard.appendChild(document.createTextNode('Message: '));
+    dashboard.appendChild(document.createElement('br'));
+    s = document.createElement('input');
+    s.type = 'text';
+    s.id = 'spam_message';
+    dashboard.appendChild(s);
+    dashboard.appendChild(document.createElement('br'));
+    dashboard.appendChild(document.createTextNode('Interval (ms): '));
+    dashboard.appendChild(document.createElement('br'));
+    s = document.createElement('input');
+    s.type = 'number';
+    s.id = 'spam_interval';
+    s.value = 10000;
+    dashboard.appendChild(s);
+
+    // BUTTON
+    s = document.createElement('button');
+    s.addEventListener('click', new_spammer);
+    s.appendChild(document.createTextNode('Add Messager'))
+    dashboard.appendChild(s);
+    dashboard.appendChild(document.createElement('br'));
+
+    // SPAMMERS LIST
+    dashboard.appendChild(document.createElement('br'));
+    dashboard.appendChild(document.createTextNode('Spam list: '));
+    dashboard.appendChild(document.createElement('br'));
+    s = document.createElement('ul');
+    s.id = 'spam_list';
+    dashboard.appendChild(s);
+    dashboard.appendChild(document.createElement('br'));
+
+    // Add full dashboard to page
     document.getElementsByClassName('chat_left_menu_wrap')[0].appendChild(dashboard);
 }
 
@@ -252,6 +294,47 @@ function handle_chat() {
 function settings_handler() {
     settings = $("#settings input:checkbox:checked").map(function(){return $(this).val()}).get();
     console.log(settings)
+}
+
+function spammer(msg) {
+    document.getElementById('content').value = msg;
+    document.getElementById('submit_button').click();
+}
+
+function del_spammer(obj) {
+    console.log(spammers);
+    var index = parseInt(obj.target.id.substring("spammer".length)); // Extract the index from the id
+    clearInterval(spammers[index][0]);
+
+    // Remove it from dashboard list
+    document.getElementById('spammer'+index).parentElement.remove();
+
+    console.log("Deleted spammer:");
+    console.log(spammers[index]);
+}
+
+function new_spammer() {
+    var message = document.getElementById('spam_message').value;
+    spammers.push([setInterval(function () {
+        document.getElementById('content').value = message;
+        document.getElementById('submit_button').click();
+    }, parseInt(document.getElementById('spam_interval').value)),
+        message]);
+
+    // Add to list in dashboard
+    var li = document.createElement('li');
+    var s = document.createElement('button');
+    s.addEventListener('click', del_spammer);
+    s.appendChild(document.createTextNode(spammer_count + " " + message));
+    s.id = "spammer"+spammer_count;
+    li.appendChild(s);
+    document.getElementById('spam_list').appendChild(li);
+
+    spammer_count++;
+    document.getElementById('spam_message').value="";
+    console.log("Added new spammer: ");
+    console.log(spammers[spammer_count-1]);
+
 }
 
 // Function to download data to a file for exporting functions
