@@ -299,6 +299,7 @@ function settings_handler() {
 function spammer(msg) {
     document.getElementById('content').value = msg;
     document.getElementById('submit_button').click();
+    document.getElementById('message_content').focus(); // Focus private chat message box.
 }
 
 function del_spammer(obj) {
