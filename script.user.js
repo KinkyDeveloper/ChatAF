@@ -192,7 +192,7 @@ function create_dashboard() {
     s = document.createElement('input');
     s.type = 'number';
     s.id = 'spam_interval';
-    s.value = 10000;
+    s.value = 45000;
     dashboard.appendChild(s);
 
     // BUTTON
